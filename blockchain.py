@@ -68,7 +68,29 @@ blockchain = blockchain()
 
 @app.route("/mine", methods=["GET"])
 def mine():
-  return "well mine a new block"
+  last_block = blockchain.last_block
+  last_proof = last_block['proof']
+  proof = blockchain.proof_of_work(last_proof)
+
+  blockchain.new_transaction(
+  sender="0",
+  recipient=node_identifier,
+  amount=1,
+  )
+
+  previous_hash = blockchain.hash(last_block)
+  block = blockchain.new_block(proof, previous_hash)
+
+  response = {
+    "message": "New BLock Forged",
+    "index": block['index'],
+    "transactions": block["transactions"],
+    "proof": block["proof"],
+    "previous_hash": block["previous_hash"],
+  }
+
+  return jsonify(response), 200
+
 
 @app.route('/transactions/new',methods=["POST"])
 def new_transaction():
@@ -81,7 +103,7 @@ def new_transaction():
 
   response = {'message': f"Transaction will be added to the block {index}"}
   return jasonify(response), 201
-  return "well add a new transaction"
+
 
 
 @app.route('/chain', methods=['GET'])
