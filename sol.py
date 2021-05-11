@@ -8,3 +8,6 @@ while sha256(f'{x*y}'.encode()).hexdigest()[-1] != "0":
 
 print(f"the solution for y is {y}")
 print(hash(5*21))
+
+chain = []
+print(chain[-1])
