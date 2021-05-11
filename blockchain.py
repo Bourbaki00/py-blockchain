@@ -1,7 +1,7 @@
 import hashlib
 import json
 from time import time
-
+from flask import Flask, jasonify, request
 from uuid import uuid4
 
 
@@ -60,6 +60,39 @@ class Blockchain(object):
     return guess_hash[:4] == "0000"
 
 
+app = Flask(__name__)
+
+node_identifier = str(uuid()).replace("-","")
+
+blockchain = blockchain()
+
+@app.route("/mine", methods=["GET"])
+def mine():
+  return "well mine a new block"
+
+@app.route('/transactions/new',methods=["POST"])
+def new_transaction():
+  values = request.get_json()
+  required = ["sender", "recipient","amount"]
+  if not all(k in values for k in required):
+    return 'missing values', 400
+
+  index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+
+  response = {'message': f"Transaction will be added to the block {index}"}
+  return jasonify(response), 201
+  return "well add a new transaction"
 
 
+@app.route('/chain', methods=['GET'])
+def full_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+    return jsonify(response), 200
+
+
+if __name__ == "__main__":
+  app.run(host="0.0.0.0", port=5000)
 
